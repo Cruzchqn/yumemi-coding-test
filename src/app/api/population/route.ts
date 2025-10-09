@@ -20,20 +20,36 @@ export async function GET(request: Request) {
   }
 
   try {
+    // ★★★ URLを正しいゆめみAPIのものに変更 ★★★
     const res = await fetch(
-      `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?cityCode=-&prefCode=${prefCode}`,
+      `https://yumemi-frontend-engineer-codecheck-api.vercel.app/api/v1/population/composition/perYear?cityCode=-&prefCode=${prefCode}`,
       {
         headers: {
           'X-API-KEY': API_KEY,
         },
       }
     )
+
+    if (!res.ok) {
+      const errorBody = await res.text()
+      console.error(
+        `Error from Yumemi API: ${res.status} ${res.statusText}`,
+        errorBody
+      )
+      return NextResponse.json(
+        { error: 'Failed to fetch data from Yumemi API' },
+        { status: res.status }
+      )
+    }
+
     const data = await res.json()
     return NextResponse.json(data)
   } catch (error) {
+    console.error('Internal Server Error:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch data from RESAS API' },
+      { error: 'Internal Server Error' },
       { status: 500 }
     )
   }
 }
+
